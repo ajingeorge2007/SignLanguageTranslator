@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SignBridge — Sign Language Translator</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <div class="brand">
+        <div class="logo">🤟</div>
+        <div>
+          <h1>Sign<span>Bridge</span></h1>
+          <p>Sign Language Translator</p>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <button>🌙 Theme</button>
+        <button>🔊 Sound</button>
+        <div class="status-dot">● Live</div>
+      </div>
+    </header>
+
+    <section class="toolbar">
+      <div class="group">
+        <label>Performance:</label>
+        <button>⚡ Fast</button>
+        <button class="active">⏱ Normal</button>
+        <button>🐢 Slow</button>
+      </div>
+
+      <div class="group">
+        <label>Quality:</label>
+        <button>📉 Low FPS</button>
+        <button class="active">📊 Normal FPS</button>
+        <button>📈 High FPS</button>
+      </div>
+
+      <div class="tabs">
+        <button id="textTab" class="active">📝 Text → Sign</button>
+        <button id="signTab">📷 Sign → Text</button>
+      </div>
+    </section>
+
+    <section id="textMode" class="translator-grid">
+      <div class="card">
+        <div class="card-head">
+          <h2>TEXT INPUT</h2>
+          <span>English</span>
+        </div>
+
+        <textarea id="textInput" maxlength="200" placeholder="Type anything here..."></textarea>
+
+        <div class="card-actions">
+          <span id="count">0 / 200</span>
+          <button onclick="speakText()">🔊 Speak</button>
+          <button onclick="clearText()">✕ Clear</button>
+        </div>
+
+        <div class="card-foot">● Ready</div>
+      </div>
+
+      <div class="switch">⇄</div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>SIGN OUTPUT</h2>
+          <span>Fingerspell</span>
+        </div>
+
+        <div id="signOutput" class="sign-output">
+          <p>👋 Signs will appear here</p>
+        </div>
+
+        <div class="card-foot">● Waiting for input</div>
+      </div>
+    </section>
+
+    <section id="signMode" class="translator-grid hidden">
+      <div class="card camera-card">
+        <div class="card-head">
+          <h2>CAMERA INPUT</h2>
+          <span>Live</span>
+        </div>
+
+        <div class="camera-box">
+          <video id="video" autoplay playsinline></video>
+          <canvas id="canvas"></canvas>
+          <button id="startBtn" onclick="startCamera()">▶ Start Camera</button>
+        </div>
+
+        <div class="card-foot">● Camera ready</div>
+      </div>
+
+      <div class="switch">⇄</div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>DETECTION</h2>
+          <span>Output</span>
+        </div>
+
+        <div class="detection">
+          <small>CURRENT GESTURE</small>
+          <h3 id="output">Waiting...</h3>
+
+          <small>SENTENCE BUILDER</small>
+          <p id="sentence">Detected signs will appear here...</p>
+
+          <button onclick="clearSentence()">Clear</button>
+        </div>
+
+        <div class="card-foot">● Awaiting camera</div>
+      </div>
+    </section>
+
+    <section class="alphabet">
+      <div class="alphabet-head">
+        <h2>ASL <span>Alphabet</span> Reference</h2>
+        <input id="searchLetter" placeholder="🔎 Search letters..." />
+      </div>
+
+      <div id="alphabetGrid" class="alphabet-grid"></div>
+    </section>
+
+    <footer>
+      <b>SignBridge</b> — Bridging communication, empowering lives. 💚
+    </footer>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -19,6 +19,8 @@ canvas.width = 640;
 canvas.height = 480;
 
 let cameraStarted = false;
+let cameraInstance = null;
+
 let sentence = "";
 let lastGesture = "";
 let lastTime = 0;
@@ -78,13 +80,11 @@ function startCamera() {
   if (cameraStarted) return;
   cameraStarted = true;
 
-  startBtn.style.display = "none";
   output.textContent = "Starting camera...";
 
   const hands = new Hands({
-    locateFile: file => {
-      return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-    }
+    locateFile: file =>
+      `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
   });
 
   hands.setOptions({
@@ -101,11 +101,7 @@ function startCamera() {
       ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
     }
 
-    if (
-      results.multiHandLandmarks &&
-      results.multiHandLandmarks.length > 0 &&
-      results.multiHandLandmarks[0]
-    ) {
+    if (results.multiHandLandmarks?.length > 0) {
       const lm = results.multiHandLandmarks[0];
 
       drawConnectors(ctx, lm, HAND_CONNECTIONS, {
@@ -126,7 +122,7 @@ function startCamera() {
     }
   });
 
-  const camera = new Camera(video, {
+  cameraInstance = new Camera(video, {
     onFrame: async () => {
       await hands.send({ image: video });
     },
@@ -134,57 +130,80 @@ function startCamera() {
     height: 480
   });
 
-  camera.start();
+  cameraInstance.start();
+}
+
+function stopCamera() {
+  if (!cameraStarted) return;
+
+  cameraStarted = false;
+
+  if (cameraInstance) {
+    cameraInstance.stop();
+    cameraInstance = null;
+  }
+
+  const stream = video.srcObject;
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop());
+    video.srcObject = null;
+  }
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  output.textContent = "Camera stopped";
 }
 
 // ---------- GESTURE DETECTION ----------
+function isFingerUp(lm, tip, pip) {
+  return lm[tip].y < lm[pip].y;
+}
+
+function distance(a, b) {
+  return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
 function detectGesture(lm) {
   if (!lm || lm.length < 21) return "No hand detected";
 
-  const indexUp = lm[8].y < lm[6].y;
-  const middleUp = lm[12].y < lm[10].y;
-  const ringUp = lm[16].y < lm[14].y;
-  const pinkyUp = lm[20].y < lm[18].y;
+  const thumbTip = lm[4];
+  const indexTip = lm[8];
+  const middleTip = lm[12];
+  const ringTip = lm[16];
+  const pinkyTip = lm[20];
 
-  const thumbUp = lm[4].y < lm[3].y;
+  const indexUp = isFingerUp(lm, 8, 6);
+  const middleUp = isFingerUp(lm, 12, 10);
+  const ringUp = isFingerUp(lm, 16, 14);
+  const pinkyUp = isFingerUp(lm, 20, 18);
+
   const thumbSide = Math.abs(lm[4].x - lm[3].x) > 0.05;
+  const thumbUp = lm[4].y < lm[3].y;
+  const thumbDown = lm[4].y > lm[3].y;
 
-  if (indexUp && middleUp && ringUp && pinkyUp && thumbUp) {
-    return "STOP ✋";
-  }
+  const indexMiddleClose = distance(indexTip, middleTip) < 0.06;
+  const thumbIndexClose = distance(thumbTip, indexTip) < 0.07;
 
-  if (!indexUp && !middleUp && !ringUp && !pinkyUp) {
-    return "NO ✊";
-  }
-
-  if (thumbUp && !indexUp && !middleUp && !ringUp && !pinkyUp) {
-    return "YES 👍";
-  }
-
-  if (indexUp && middleUp && !ringUp && !pinkyUp) {
-    return "PEACE ✌️";
-  }
-
-  if (indexUp && !middleUp && !ringUp && !pinkyUp) {
-    return "ONE ☝️";
-  }
-
-  if (!indexUp && !middleUp && !ringUp && pinkyUp && thumbSide) {
-    return "CALL 🤙";
-  }
+  if (indexUp && middleUp && ringUp && pinkyUp && thumbSide) return "HELLO ✋";
+  if (!indexUp && !middleUp && !ringUp && !pinkyUp) return "NO ✊";
+  if (thumbUp && !indexUp) return "YES 👍";
+  if (thumbDown && !indexUp) return "BAD 👎";
+  if (indexUp && !middleUp) return "ONE ☝️";
+  if (indexUp && middleUp && !ringUp) return "PEACE ✌️";
+  if (indexUp && middleUp && ringUp && !pinkyUp) return "THREE 3️⃣";
+  if (indexUp && middleUp && ringUp && pinkyUp) return "FIVE 🖐️";
+  if (thumbIndexClose && middleUp && ringUp && pinkyUp) return "OK 👌";
+  if (!indexUp && !middleUp && !ringUp && pinkyUp && thumbSide) return "CALL 🤙";
+  if (indexUp && !middleUp && !ringUp && pinkyUp) return "ROCK 🤘";
+  if (indexUp && middleUp && indexMiddleClose) return "CLOSE 🤞";
+  if (indexUp && !middleUp && !ringUp && pinkyUp && thumbUp) return "LOVE 🤟";
 
   return "Unknown";
 }
 
 // ---------- SENTENCE ----------
 function updateSentence(gesture) {
-  if (
-    gesture === "Unknown" ||
-    gesture === "No hand detected" ||
-    gesture === "Starting camera..."
-  ) {
-    return;
-  }
+  if (gesture === "Unknown") return;
 
   const word = gesture.split(" ")[0];
   const now = Date.now();

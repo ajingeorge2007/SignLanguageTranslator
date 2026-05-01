@@ -245,11 +245,6 @@ input::placeholder {
   display: block;
 }
 
-#startBtn {
-  position: absolute;
-  z-index: 5;
-}
-
 .detection {
   padding: 24px;
 }
@@ -358,4 +353,15 @@ footer {
   input {
     width: 100%;
   }
+  .camera-controls {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 0 18px 18px;
+}
+
+#startBtn,
+#stopBtn {
+  position: static;
+}
 }

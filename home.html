@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SignBridge | Home</title>
+  <link rel="stylesheet" href="pages.css" />
+</head>
+<body>
+
+<main class="container">
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="brand">
+      <div class="logo">🤟</div>
+      <div>
+        <h2>Sign<span>Bridge</span></h2>
+        <p>Sign Language Translator</p>
+      </div>
+    </div>
+    <div class="cursor-glow" id="glow"></div>
+
+<script>
+const glow = document.getElementById("glow");
+
+document.addEventListener("mousemove", e => {
+  glow.style.left = e.clientX + "px";
+  glow.style.top = e.clientY + "px";
+});
+</script>
+
+    <div class="nav-actions">
+      <a href="auth.html">Login</a>
+      <a href="index.html" class="primary">Open App</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="left">
+      <div class="badge">● Live gesture translation</div>
+
+      <h1>
+        Bridge the gap<br>
+        between <span>text</span> and <span>sign</span>.
+      </h1>
+
+      <p>
+        A modern sign language translator that converts text into signs and uses
+        your camera to detect gestures in real time.
+      </p>
+
+      <div class="actions">
+        <a href="auth.html" class="btn primary">Get Started</a>
+        <a href="index.html" class="btn">Try Translator</a>
+      </div>
+
+      <div class="features">
+        <div>Text → Sign</div>
+        <div>Sign → Text</div>
+        <div>ASL Reference</div>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="preview">
+        <div class="preview-head">
+          <span>Camera Input</span>
+          <b>● Live</b>
+        </div>
+
+        <div class="screen">
+          <div class="hand">🤟</div>
+          <div class="scan"></div>
+        </div>
+
+        <div class="preview-foot">
+          <small>CURRENT GESTURE</small>
+          <h3>LOVE 🤟</h3>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+</body>
+</html>
